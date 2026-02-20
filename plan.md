@@ -36,7 +36,7 @@
 
 ## Etapy implementacji
 
-- [ ] **Etap 1** — Szkielet wtyczki (TypeScript, manifest, główna klasa pluginu)
+- [x] **Etap 1** — Szkielet wtyczki (TypeScript, manifest, główna klasa pluginu)
 - [ ] **Etap 2** — Logika parsowania dat i wykrywania poziomu notatki
 - [ ] **Etap 3** — Panel boczny z hierarchicznym widokiem nawigacji
 - [ ] **Etap 4** — Przyciski "Dzisiaj" i "Poprzedni dzień"
