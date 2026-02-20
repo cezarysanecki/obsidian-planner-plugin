@@ -1,6 +1,6 @@
 // ── Typy ────────────────────────────────────────────────────────────────────
 
-export type NoteLevel = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type NoteLevel = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'goals';
 
 export interface DailyNoteInfo {
 	level: 'daily';
@@ -26,11 +26,17 @@ export interface YearlyNoteInfo {
 	year: number;
 }
 
+export interface GoalsNoteInfo {
+	level: 'goals';
+	name: string;
+}
+
 export type NoteInfo =
 	| DailyNoteInfo
 	| WeeklyNoteInfo
 	| MonthlyNoteInfo
-	| YearlyNoteInfo;
+	| YearlyNoteInfo
+	| GoalsNoteInfo;
 
 // ── Wzorce nazw plików ───────────────────────────────────────────────────────
 
@@ -82,7 +88,7 @@ export function getDailyNotePath(year: number, month: number, day: number): stri
 }
 
 export function getWeeklyNotePath(year: number, week: number): string {
-	return `${ROOT}/02 Tygodnie/${year}-W${week}`;
+	return `${ROOT}/02 Tygodnie/${year}-W${String(week).padStart(2, '0')}`;
 }
 
 export function getMonthlyNotePath(year: number, month: number): string {
@@ -93,6 +99,13 @@ export function getMonthlyNotePath(year: number, month: number): string {
 export function getYearlyNotePath(year: number): string {
 	return `${ROOT}/04 Lata/${year}`;
 }
+
+export function getGoalsNotePath(name: string): string {
+	return `${ROOT}/08 Cele/${name}`;
+}
+
+export const YEARLY_FOLDER = `${ROOT}/04 Lata/`;
+export const GOALS_FOLDER  = `${ROOT}/08 Cele/`;
 
 // ── ISO numer tygodnia ───────────────────────────────────────────────────────
 
@@ -151,7 +164,7 @@ export function getWeeksInMonth(
 	const weeks: WeeklyNoteInfo[] = [];
 	for (let day = 1; day <= daysInMonth; day++) {
 		const { year: wy, week } = getISOWeek(year, month, day);
-		const key = `${wy}-W${week}`;
+		const key = `${wy}-W${String(week).padStart(2, '0')}`;
 		if (!seen.has(key)) {
 			seen.add(key);
 			weeks.push({ level: 'weekly', year: wy, week });
@@ -190,4 +203,18 @@ export function getYearForMonth(info: MonthlyNoteInfo): YearlyNoteInfo {
 /** Rok zawierający większość dni danego tygodnia (rok ISO tygodnia). */
 export function getYearForWeek(info: WeeklyNoteInfo): YearlyNoteInfo {
 	return { level: 'yearly', year: info.year };
+}
+
+/** Dzień poprzedzający podany. */
+export function getDayBefore(info: DailyNoteInfo): DailyNoteInfo {
+	const d = new Date(Date.UTC(info.year, info.month - 1, info.day));
+	d.setUTCDate(d.getUTCDate() - 1);
+	return { level: 'daily', year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() };
+}
+
+/** Dzień następny po podanym. */
+export function getDayAfter(info: DailyNoteInfo): DailyNoteInfo {
+	const d = new Date(Date.UTC(info.year, info.month - 1, info.day));
+	d.setUTCDate(d.getUTCDate() + 1);
+	return { level: 'daily', year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() };
 }

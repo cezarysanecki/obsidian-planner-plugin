@@ -6,6 +6,7 @@ import {
 	WeeklyNoteInfo,
 	MonthlyNoteInfo,
 	YearlyNoteInfo,
+	GoalsNoteInfo,
 	getDailyNotePath,
 	getWeeklyNotePath,
 	getMonthlyNotePath,
@@ -14,8 +15,11 @@ import {
 	getWeeksInMonth,
 	getMonthsInYear,
 	getWeekForDay,
-	getMonthForDay,
 	getYearForMonth,
+	getDayBefore,
+	getDayAfter,
+	YEARLY_FOLDER,
+	GOALS_FOLDER,
 } from './noteParser';
 
 export const PLANNER_VIEW_TYPE = 'planner-navigator';
@@ -51,8 +55,14 @@ export class PlannerNavigatorView extends ItemView {
 
 	private refresh(): void {
 		const file = this.app.workspace.getActiveFile();
-		const info = file ? parseNoteName(file.basename) : null;
-		this.render(info);
+		if (!file) { this.render(null); return; }
+
+		if (file.path.startsWith(GOALS_FOLDER)) {
+			this.render({ level: 'goals', name: file.basename });
+			return;
+		}
+
+		this.render(parseNoteName(file.basename));
 	}
 
 	private render(info: NoteInfo | null): void {
@@ -68,6 +78,7 @@ export class PlannerNavigatorView extends ItemView {
 		}
 
 		switch (info.level) {
+			case 'goals':   this.renderGoals(container, info);   break;
 			case 'daily':   this.renderDaily(container, info);   break;
 			case 'weekly':  this.renderWeekly(container, info);  break;
 			case 'monthly': this.renderMonthly(container, info); break;
@@ -75,24 +86,43 @@ export class PlannerNavigatorView extends ItemView {
 		}
 	}
 
+	// ── Goals ────────────────────────────────────────────────────────────────
+
+	private renderGoals(el: HTMLElement, _info: GoalsNoteInfo): void {
+		const years = this.app.vault.getFiles()
+			.filter(f => f.path.startsWith(YEARLY_FOLDER))
+			.map(f => parseNoteName(f.basename))
+			.filter((i): i is import('./noteParser').YearlyNoteInfo => i?.level === 'yearly')
+			.sort((a, b) => a.year - b.year);
+
+		this.renderSection(el, 'Lata',
+			years.map(y => ({
+				label: String(y.year),
+				path: getYearlyNotePath(y.year),
+			}))
+		);
+	}
+
 	// ── Daily ────────────────────────────────────────────────────────────────
 
 	private renderDaily(el: HTMLElement, info: DailyNoteInfo): void {
-		const week  = getWeekForDay(info);
-		const month = getMonthForDay(info);
+		const week = getWeekForDay(info);
+		const prev = getDayBefore(info);
+		const next = getDayAfter(info);
+
+		const fmt = (d: DailyNoteInfo) =>
+			`${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
 
 		this.renderSection(el, 'Tydzień', [
 			{
-				label: `${week.year}-W${week.week}`,
+				label: `${week.year}-W${String(week.week).padStart(2, '0')}`,
 				path: getWeeklyNotePath(week.year, week.week),
 			},
 		]);
 
-		this.renderSection(el, 'Miesiąc', [
-			{
-				label: `${MONTH_NAMES[month.month - 1]} ${month.year}`,
-				path: getMonthlyNotePath(month.year, month.month),
-			},
+		this.renderSection(el, 'Sąsiednie dni', [
+			{ label: `← ${fmt(prev)}`, path: getDailyNotePath(prev.year, prev.month, prev.day) },
+			{ label: `→ ${fmt(next)}`, path: getDailyNotePath(next.year, next.month, next.day) },
 		]);
 	}
 
@@ -100,6 +130,17 @@ export class PlannerNavigatorView extends ItemView {
 
 	private renderWeekly(el: HTMLElement, info: WeeklyNoteInfo): void {
 		const days = getDaysInWeek(info.year, info.week);
+
+		const months = [...new Map(
+			days.map(d => [`${d.year}-${d.month}`, d])
+		).values()];
+
+		this.renderSection(el, 'Miesiąc',
+			months.map(d => ({
+				label: `${MONTH_NAMES[d.month - 1]} ${d.year}`,
+				path: getMonthlyNotePath(d.year, d.month),
+			}))
+		);
 
 		this.renderSection(
 			el,
@@ -125,7 +166,7 @@ export class PlannerNavigatorView extends ItemView {
 			el,
 			'Tygodnie',
 			weeks.map(w => ({
-				label: `${w.year}-W${w.week}`,
+				label: `${w.year}-W${String(w.week).padStart(2, '0')}`,
 				path: getWeeklyNotePath(w.year, w.week),
 			}))
 		);
@@ -134,6 +175,19 @@ export class PlannerNavigatorView extends ItemView {
 	// ── Yearly ───────────────────────────────────────────────────────────────
 
 	private renderYearly(el: HTMLElement, info: YearlyNoteInfo): void {
+		const goalsFiles = this.app.vault.getFiles()
+			.filter(f => f.path.startsWith(GOALS_FOLDER))
+			.sort((a, b) => a.basename.localeCompare(b.basename));
+
+		if (goalsFiles.length > 0) {
+			this.renderSection(el, 'Cele',
+				goalsFiles.map(f => ({
+					label: f.basename,
+					path: f.path.replace(/\.md$/, ''),
+				}))
+			);
+		}
+
 		const months = getMonthsInYear(info.year);
 
 		this.renderSection(
