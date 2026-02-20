@@ -37,8 +37,19 @@
 ## Etapy implementacji
 
 - [x] **Etap 1** — Szkielet wtyczki (TypeScript, manifest, główna klasa pluginu)
-- [ ] **Etap 2** — Logika parsowania dat i wykrywania poziomu notatki
-- [ ] **Etap 3** — Panel boczny z hierarchicznym widokiem nawigacji
+- [x] **Etap 2** — Logika parsowania dat i wykrywania poziomu notatki (`src/noteParser.ts`)
+  - `parseNoteName(basename)` → NoteInfo (daily/weekly/monthly/yearly)
+  - `getISOWeek`, `getDaysInWeek`, `getWeeksInMonth`, `getMonthsInYear`
+  - `getDailyNotePath`, `getWeeklyNotePath`, `getMonthlyNotePath`, `getYearlyNotePath`
+  - Nawigacja w górę: `getWeekForDay`, `getMonthForDay`, `getYearForMonth`, `getYearForWeek`
+- [ ] **Etap 3** — Panel boczny (`PlannerNavigatorView`)
+  - Rejestracja widoku w sidebarze
+  - Nasłuchiwanie na zmianę aktywnego pliku (`workspace.on('active-leaf-change')`)
+  - `parseNoteName` → wykrycie poziomu → wyrenderowanie listy powiązanych notatek
+  - Klik w link → `getDailyNotePath` / `getWeeklyNotePath` / ... → otwarcie pliku
 - [ ] **Etap 4** — Przyciski "Dzisiaj" i "Poprzedni dzień"
+  - Ribbon icon lub przyciski w panelu bocznym
+  - Obliczenie daty → `getDailyNotePath` → otwarcie/utworzenie notatki
 - [ ] **Etap 5** — Tworzenie notatek na żądanie
+  - Jeśli plik nie istnieje → `vault.create(path, '')` (opcjonalnie z szablonem)
 - [ ] **Etap 6** — Testy i dopracowanie UX
