@@ -42,7 +42,7 @@
   - `getISOWeek`, `getDaysInWeek`, `getWeeksInMonth`, `getMonthsInYear`
   - `getDailyNotePath`, `getWeeklyNotePath`, `getMonthlyNotePath`, `getYearlyNotePath`
   - Nawigacja w górę: `getWeekForDay`, `getMonthForDay`, `getYearForMonth`, `getYearForWeek`
-- [ ] **Etap 3** — Panel boczny (`PlannerNavigatorView`)
+- [x] **Etap 3** — Panel boczny (`PlannerNavigatorView`)
   - Rejestracja widoku w sidebarze
   - Nasłuchiwanie na zmianę aktywnego pliku (`workspace.on('active-leaf-change')`)
   - `parseNoteName` → wykrycie poziomu → wyrenderowanie listy powiązanych notatek
