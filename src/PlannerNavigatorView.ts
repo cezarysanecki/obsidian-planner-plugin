@@ -18,6 +18,10 @@ import {
 	getYearForMonth,
 	getDayBefore,
 	getDayAfter,
+	getWeekBefore,
+	getWeekAfter,
+	getMonthBefore,
+	getMonthAfter,
 	YEARLY_FOLDER,
 	GOALS_FOLDER,
 } from './noteParser';
@@ -130,6 +134,8 @@ export class PlannerNavigatorView extends ItemView {
 
 	private renderWeekly(el: HTMLElement, info: WeeklyNoteInfo): void {
 		const days = getDaysInWeek(info.year, info.week);
+		const prev = getWeekBefore(info);
+		const next = getWeekAfter(info);
 
 		const months = [...new Map(
 			days.map(d => [`${d.year}-${d.month}`, d])
@@ -141,6 +147,14 @@ export class PlannerNavigatorView extends ItemView {
 				path: getMonthlyNotePath(d.year, d.month),
 			}))
 		);
+
+		const fmtW = (w: WeeklyNoteInfo) =>
+			`${w.year}-W${String(w.week).padStart(2, '0')}`;
+
+		this.renderSection(el, 'Sąsiednie tygodnie', [
+			{ label: `← ${fmtW(prev)}`, path: getWeeklyNotePath(prev.year, prev.week) },
+			{ label: `→ ${fmtW(next)}`, path: getWeeklyNotePath(next.year, next.week) },
+		]);
 
 		this.renderSection(
 			el,
@@ -157,9 +171,16 @@ export class PlannerNavigatorView extends ItemView {
 	private renderMonthly(el: HTMLElement, info: MonthlyNoteInfo): void {
 		const year  = getYearForMonth(info);
 		const weeks = getWeeksInMonth(info.year, info.month);
+		const prev  = getMonthBefore(info);
+		const next  = getMonthAfter(info);
 
 		this.renderSection(el, 'Rok', [
 			{ label: String(year.year), path: getYearlyNotePath(year.year) },
+		]);
+
+		this.renderSection(el, 'Sąsiednie miesiące', [
+			{ label: `← ${MONTH_NAMES[prev.month - 1]} ${prev.year}`, path: getMonthlyNotePath(prev.year, prev.month) },
+			{ label: `→ ${MONTH_NAMES[next.month - 1]} ${next.year}`, path: getMonthlyNotePath(next.year, next.month) },
 		]);
 
 		this.renderSection(

@@ -1,10 +1,1 @@
-{
-  "id": "obsidian-planner-plugin",
-  "name": "Planner Navigator",
-  "version": "0.1.0",
-  "minAppVersion": "1.0.0",
-  "description": "Navigate a multi-level planning system: daily, weekly, monthly, annual notes and life goals.",
-  "author": "cezarysanecki",
-  "authorUrl": "https://github.com/cezarysanecki",
-  "isDesktopOnly": false
-}
+{"id":"obsidian-planner-plugin","name":"Planner Navigator","version":"0.1.0","minAppVersion":"1.0.0","description":"Navigate a multi-level planning system: daily, weekly, monthly, annual notes and life goals.","author":"cezarysanecki","authorUrl":"https://github.com/cezarysanecki","isDesktopOnly":false}

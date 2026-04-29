@@ -218,3 +218,31 @@ export function getDayAfter(info: DailyNoteInfo): DailyNoteInfo {
 	d.setUTCDate(d.getUTCDate() + 1);
 	return { level: 'daily', year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() };
 }
+
+/** Tydzień poprzedzający podany. */
+export function getWeekBefore(info: WeeklyNoteInfo): WeeklyNoteInfo {
+	const monday = mondayOfISOWeek(info.year, info.week);
+	monday.setUTCDate(monday.getUTCDate() - 7);
+	const { year, week } = getISOWeek(monday.getUTCFullYear(), monday.getUTCMonth() + 1, monday.getUTCDate());
+	return { level: 'weekly', year, week };
+}
+
+/** Tydzień następny po podanym. */
+export function getWeekAfter(info: WeeklyNoteInfo): WeeklyNoteInfo {
+	const monday = mondayOfISOWeek(info.year, info.week);
+	monday.setUTCDate(monday.getUTCDate() + 7);
+	const { year, week } = getISOWeek(monday.getUTCFullYear(), monday.getUTCMonth() + 1, monday.getUTCDate());
+	return { level: 'weekly', year, week };
+}
+
+/** Miesiąc poprzedzający podany. */
+export function getMonthBefore(info: MonthlyNoteInfo): MonthlyNoteInfo {
+	const d = new Date(Date.UTC(info.year, info.month - 2, 1));
+	return { level: 'monthly', year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
+}
+
+/** Miesiąc następny po podanym. */
+export function getMonthAfter(info: MonthlyNoteInfo): MonthlyNoteInfo {
+	const d = new Date(Date.UTC(info.year, info.month, 1));
+	return { level: 'monthly', year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
+}
